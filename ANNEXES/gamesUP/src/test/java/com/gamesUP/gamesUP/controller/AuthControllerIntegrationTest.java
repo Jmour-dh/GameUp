@@ -56,7 +56,7 @@ class AuthControllerIntegrationTest {
         User user = new User();
         user.setName("John Doe");
         user.setEmail("john.doe@example.com");
-        user.setPasswordHash(new BCryptPasswordEncoder().encode("password123")); // Hache correctement le mot de passe
+        user.setPasswordHash(new BCryptPasswordEncoder().encode("password123"));
         user.setRole(Role.CUSTOMER);
         userRepository.save(user);
 
