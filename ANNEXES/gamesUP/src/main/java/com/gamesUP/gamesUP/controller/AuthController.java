@@ -1,5 +1,6 @@
 package com.gamesUP.gamesUP.controller;
 
+import com.gamesUP.gamesUP.dto.AuthDTO;
 import com.gamesUP.gamesUP.dto.UserDTO;
 import com.gamesUP.gamesUP.entity.User;
 import com.gamesUP.gamesUP.service.AuthService;
@@ -22,5 +23,11 @@ public class AuthController {
     public ResponseEntity<User> register(@Valid @RequestBody UserDTO userDTO) {
         User createdUser = authService.registerUser(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    }
+
+    @RequestMapping("/login")
+    public ResponseEntity<String> login(@Valid @RequestBody AuthDTO authDTO) {
+        String token = authService.login(authDTO.getEmail(), authDTO.getPassword());
+        return ResponseEntity.ok(token);
     }
 }
