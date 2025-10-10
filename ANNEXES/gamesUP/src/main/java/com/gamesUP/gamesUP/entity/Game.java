@@ -17,8 +17,9 @@ public class Game {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String author;
+    @ManyToOne
+    @JoinColumn(name = "author_id", nullable = false)
+    private Author author;
 
     @Column(nullable = false)
     private String genre;

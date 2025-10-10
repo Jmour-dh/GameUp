@@ -19,6 +19,6 @@ public class Author {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "auteur")
+    @OneToMany(mappedBy = "author")
     private List<Game> games;
 }
