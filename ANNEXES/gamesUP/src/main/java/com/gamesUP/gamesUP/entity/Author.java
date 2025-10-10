@@ -1,13 +1,24 @@
 package com.gamesUP.gamesUP.entity;
 
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.util.List;
 
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Author {
 
-    public Long id;
-    
-    public String name;
-    
-    public List<Game> games;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @Column(nullable = false)
+    private String name;
+
+    @OneToMany(mappedBy = "auteur")
+    private List<Game> games;
 }
