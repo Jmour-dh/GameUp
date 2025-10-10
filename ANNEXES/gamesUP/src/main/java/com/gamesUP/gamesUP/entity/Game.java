@@ -15,10 +15,10 @@ public class Game {
     private Long id;
 
     @Column(nullable = false)
-    private String nom;
+    private String name;
 
     @Column(nullable = false)
-    private String auteur;
+    private String author;
 
     @Column(nullable = false)
     private String genre;

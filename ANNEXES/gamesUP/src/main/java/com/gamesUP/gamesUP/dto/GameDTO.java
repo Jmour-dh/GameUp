@@ -14,10 +14,10 @@ public class GameDTO {
     private Long id;
 
     @NotBlank(message = "Name is required")
-    private String nom;
+    private String name;
 
     @NotBlank(message = "Author is required")
-    private String auteur;
+    private String author;
 
     @NotBlank(message = "Genre is required")
     private String genre;
