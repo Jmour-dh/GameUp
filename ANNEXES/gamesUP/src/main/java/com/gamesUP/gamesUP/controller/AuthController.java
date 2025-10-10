@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,13 +20,13 @@ public class AuthController {
 
     private  final AuthService authService;
 
-    @RequestMapping("/register")
+    @PostMapping("/register")
     public ResponseEntity<User> register(@Valid @RequestBody UserDTO userDTO) {
         User createdUser = authService.registerUser(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-    @RequestMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<String> login(@Valid @RequestBody AuthDTO authDTO) {
         String token = authService.login(authDTO.getEmail(), authDTO.getPassword());
         return ResponseEntity.ok(token);
