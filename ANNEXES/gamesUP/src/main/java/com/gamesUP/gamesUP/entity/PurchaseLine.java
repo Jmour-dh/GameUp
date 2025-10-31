@@ -1,10 +1,13 @@
+// language: java
 package com.gamesUP.gamesUP.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Data
+@Table(name = "purchase_line")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -14,17 +17,16 @@ public class PurchaseLine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private int userId;
 
-    @ManyToOne
-    @JoinColumn(name = "game_id", nullable = false)
-    private Game game;
-
-    @Column(nullable = false)
     private double price;
 
-    @ManyToOne
-    @JoinColumn(name = "purchase_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "game_id", nullable = false)
+    // Pas de cascade ici : ne pas utiliser cascade = CascadeType.PERSIST/MERGE
+    private Game game;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_id")
     private Purchase purchase;
 }
