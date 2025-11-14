@@ -5,6 +5,7 @@ import com.gamesUP.gamesUP.entity.Author;
 import com.gamesUP.gamesUP.entity.Category;
 import com.gamesUP.gamesUP.entity.Game;
 import com.gamesUP.gamesUP.entity.Publisher;
+import com.gamesUP.gamesUP.exception.ResourceNotFoundException;
 import com.gamesUP.gamesUP.repository.AuthorRepository;
 import com.gamesUP.gamesUP.repository.CategoryRepository;
 import com.gamesUP.gamesUP.repository.GameRepository;
@@ -73,6 +74,41 @@ class GameServiceTest {
 
         assertEquals(1, result.size());
         assertEquals("Game A", result.get(0).getName());
+        verify(gameRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetAll_empty_returnsEmptyList() {
+        when(gameRepository.findAll()).thenReturn(List.of());
+
+        List<GameDTO> result = gameService.getAll();
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(gameRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetAll_nullRelations_convertsNullsToDto() {
+        Game g = mock(Game.class);
+        when(g.getId()).thenReturn(2L);
+        when(g.getName()).thenReturn("NoRelations");
+        when(g.getAuthor()).thenReturn(null);
+        when(g.getGenre()).thenReturn("Indie");
+        when(g.getCategory()).thenReturn(null);
+        when(g.getPublisher()).thenReturn(null);
+        when(g.getNumEdition()).thenReturn(1);
+
+        when(gameRepository.findAll()).thenReturn(List.of(g));
+
+        List<GameDTO> result = gameService.getAll();
+
+        assertEquals(1, result.size());
+        GameDTO dto = result.get(0);
+        assertEquals("NoRelations", dto.getName());
+        assertNull(dto.getAuthor());
+        assertNull(dto.getCategoryId());
+        assertNull(dto.getPublisherId());
         verify(gameRepository, times(1)).findAll();
     }
 
@@ -213,5 +249,136 @@ class GameServiceTest {
 
         verify(gameRepository, times(1)).existsById(1L);
         verify(gameRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void getById_notFound_throws() {
+        when(gameRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> gameService.getById(1L));
+
+        verify(gameRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void create_missingAuthor_throws() {
+        GameDTO request = new GameDTO(null, "Game A", "Missing Author", "Action", 1L, 1L, 1);
+
+        when(authorRepository.findByName("Missing Author")).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> gameService.create(request));
+
+        verify(authorRepository, times(1)).findByName("Missing Author");
+        verify(categoryRepository, never()).findById(anyLong());
+        verify(publisherRepository, never()).findById(anyLong());
+        verify(gameRepository, never()).save(any());
+    }
+
+    @Test
+    void create_missingCategory_throws() {
+        GameDTO request = new GameDTO(null, "Game A", "Author A", "Action", 99L, 1L, 1);
+
+        Author author = mock(Author.class);
+        when(authorRepository.findByName("Author A")).thenReturn(Optional.of(author));
+        when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> gameService.create(request));
+
+        verify(authorRepository, times(1)).findByName("Author A");
+        verify(categoryRepository, times(1)).findById(99L);
+        verify(publisherRepository, never()).findById(anyLong());
+        verify(gameRepository, never()).save(any());
+    }
+
+    @Test
+    void create_missingPublisher_throws() {
+        GameDTO request = new GameDTO(null, "Game A", "Author A", "Action", 1L, 99L, 1);
+
+        Author author = mock(Author.class);
+        Category category = mock(Category.class);
+
+        when(authorRepository.findByName("Author A")).thenReturn(Optional.of(author));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(publisherRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> gameService.create(request));
+
+        verify(authorRepository, times(1)).findByName("Author A");
+        verify(categoryRepository, times(1)).findById(1L);
+        verify(publisherRepository, times(1)).findById(99L);
+        verify(gameRepository, never()).save(any());
+    }
+
+    @Test
+    void update_gameNotFound_throws() {
+        GameDTO request = new GameDTO(null, "Updated", "Author A", "RPG", 1L, 1L, 1);
+
+        when(gameRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> gameService.update(1L, request));
+
+        verify(gameRepository, times(1)).findById(1L);
+        verify(authorRepository, never()).findByName(anyString());
+    }
+
+    @Test
+    void update_missingAuthor_throws() {
+        Game existing = mock(Game.class);
+        when(gameRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        when(authorRepository.findByName("Missing")).thenReturn(Optional.empty());
+
+        GameDTO request = new GameDTO(null, "Name", "Missing", "Genre", 1L, 1L, 1);
+
+        assertThrows(ResourceNotFoundException.class, () -> gameService.update(1L, request));
+
+        verify(gameRepository, times(1)).findById(1L);
+        verify(authorRepository, times(1)).findByName("Missing");
+    }
+
+    @Test
+    void update_missingCategory_throws() {
+        Game existing = mock(Game.class);
+        when(gameRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        Author author = mock(Author.class);
+        when(authorRepository.findByName("Author A")).thenReturn(Optional.of(author));
+        when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
+
+        GameDTO request = new GameDTO(null, "Name", "Author A", "Genre", 999L, 1L, 1);
+
+        assertThrows(ResourceNotFoundException.class, () -> gameService.update(1L, request));
+
+        verify(authorRepository, times(1)).findByName("Author A");
+        verify(categoryRepository, times(1)).findById(999L);
+    }
+
+    @Test
+    void update_missingPublisher_throws() {
+        Game existing = mock(Game.class);
+        when(gameRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        Author author = mock(Author.class);
+        Category category = mock(Category.class);
+
+        when(authorRepository.findByName("Author A")).thenReturn(Optional.of(author));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(publisherRepository.findById(999L)).thenReturn(Optional.empty());
+
+        GameDTO request = new GameDTO(null, "Name", "Author A", "Genre", 1L, 999L, 1);
+
+        assertThrows(ResourceNotFoundException.class, () -> gameService.update(1L, request));
+
+        verify(publisherRepository, times(1)).findById(999L);
+    }
+
+    @Test
+    void delete_notFound_throws() {
+        when(gameRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class, () -> gameService.delete(1L));
+
+        verify(gameRepository, times(1)).existsById(1L);
+        verify(gameRepository, never()).deleteById(anyLong());
     }
 }

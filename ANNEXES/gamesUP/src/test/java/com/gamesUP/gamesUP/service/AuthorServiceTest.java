@@ -1,4 +1,3 @@
-// src/test/java/com/gamesUP/gamesUP/service/AuthorServiceIntegrationTest.java
 package com.gamesUP.gamesUP.service;
 
 import com.gamesUP.gamesUP.dto.AuthorDTO;

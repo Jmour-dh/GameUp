@@ -1,4 +1,3 @@
-// language: java
 package com.gamesUP.gamesUP.controller;
 
 import com.gamesUP.gamesUP.dto.PurchaseLineDTO;
