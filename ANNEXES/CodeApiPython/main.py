@@ -12,10 +12,12 @@ async def root():
     return {"message": "API de recommandation en ligne"}
 
 # Endpoint pour envoyer les données d'utilisateur et récupérer des recommandations
-@app.post("/recommendations/")
+@app.post("/recommendations")
 async def get_recommendations(data: UserData):
     try:
+        print(f"Requête reçue pour l'utilisateur ID: {data.user_id}") 
         recommendations = generate_recommendations(data)
-        return {"recommendations": recommendations}
+        return {"user_id":data.user_id, "recommendations": recommendations}
     except Exception as e:
+        print("Erreur lors de la génération des recommandations :", e)
         raise HTTPException(status_code=500, detail=str(e))
