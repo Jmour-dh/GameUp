@@ -39,7 +39,7 @@
 | `CodeApiPython/recommendation.py`                      | Logique principale de génération des recommandations.                                    |
 | `CodeApiPython/main.py`                                | Point d'entrée (API REST ou CLI selon implémentation).                                   |
 | `CodeApiPython/data_loader.py`, `CodeApiPython/models.py` | Chargement des données et schémas utilisés par le modèle.                                |
-| `CodeApiPython/training_data.csv`                      | Jeu de données d'entraînement pour le modèle KNN.                                        |
+| `CodeApiPython/data/data.csv`                      | Jeu de données d'entraînement pour le modèle KNN.                                        |
 | `Games Up/ANNEXES/Doc.`                                    | Document d'explication et intégration .                               |
 
 ---
