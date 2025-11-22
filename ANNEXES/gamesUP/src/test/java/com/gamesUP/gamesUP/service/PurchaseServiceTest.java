@@ -55,7 +55,6 @@ class PurchaseServiceTest {
         when(purchaseLineRepository.findById(1L)).thenReturn(Optional.of(lineBefore));
         when(gameRepository.findById(2L)).thenReturn(Optional.of(managedGame));
 
-        // after linking, toDTO will call findAll() — simulate returned line linked to saved purchase
         PurchaseLine lineWithPurchase = new PurchaseLine();
         lineWithPurchase.setId(1L);
         lineWithPurchase.setPurchase(saved);
@@ -100,12 +99,10 @@ class PurchaseServiceTest {
         existing.setDate(now);
         when(purchaseRepository.findById(purchaseId)).thenReturn(Optional.of(existing));
 
-        // existing line attached to purchase -> should be detached (id=2)
         PurchaseLine attachedLine = new PurchaseLine();
         attachedLine.setId(2L);
         attachedLine.setPurchase(existing);
 
-        // new line to attach id=3
         PurchaseLine newLine = new PurchaseLine();
         newLine.setId(3L);
         Game refGame = new Game(); refGame.setId(5L);
@@ -120,7 +117,6 @@ class PurchaseServiceTest {
         saved.setId(purchaseId);
         when(purchaseRepository.save(existing)).thenReturn(saved);
 
-        // After update, toDTO should read lines attached to saved purchase — simulate only newLine attached
         PurchaseLine newLineAttached = new PurchaseLine();
         newLineAttached.setId(3L);
         newLineAttached.setPurchase(saved);
@@ -139,7 +135,6 @@ class PurchaseServiceTest {
         verify(purchaseLineRepository, atLeast(1)).save(any(PurchaseLine.class));
     }
 
-    // Petit wrapper pour verifier l'appel sur gameRepository sans coller de static import problématique dans le code généré.
     private GameRepository game_repository_safe(GameRepository repo) {
         return repo;
     }

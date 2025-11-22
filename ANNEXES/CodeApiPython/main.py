@@ -6,18 +6,16 @@ from models import UserData
 
 app = FastAPI()
 
-# Endpoint de base pour tester que l'API est en ligne
 @app.get("/")
 async def root():
-    return {"message": "API de recommandation en ligne"}
+    return {"message": "Online recommendation API"}
 
-# Endpoint pour envoyer les données d'utilisateur et récupérer des recommandations
 @app.post("/recommendations")
 async def get_recommendations(data: UserData):
     try:
-        print(f"Requête reçue pour l'utilisateur ID: {data.user_id}") 
+        print(f"Request received for user ID: {data.user_id}")
         recommendations = generate_recommendations(data)
         return {"user_id":data.user_id, "recommendations": recommendations}
     except Exception as e:
-        print("Erreur lors de la génération des recommandations :", e)
+        print("Error during the generation of recommendations:", e)
         raise HTTPException(status_code=500, detail=str(e))
